@@ -1,4 +1,4 @@
-(* goldbach *)
+(* goldbach_list_limit *)
 let is_prime n =
   if n < 2 then false
   else if n = 2 then true
