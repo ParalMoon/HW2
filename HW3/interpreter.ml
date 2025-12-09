@@ -22,13 +22,12 @@ let rec interp_expr (e: Ast.expr) (g: FStore.t) (s: Store.t) : Value.t =
       Value.NumV (n1 - n2)
 
   | Ast.LetIn (x, e1, e2) ->
-      (* let x = e1 in e2 *)
       let v1 = interp_expr e1 g s in
       let s' = Store.add x v1 s in
       interp_expr e2 g s'
 
   | Ast.Call (fname, args) ->
-    (* function lookup *)
+    (* 함수 존재 여부 확인 *)
     if not (FStore.mem fname g) then
       raise (Failure ("Undefined function: " ^ fname))
     else
@@ -43,10 +42,10 @@ let rec interp_expr (e: Ast.expr) (g: FStore.t) (s: Store.t) : Value.t =
                         string_of_int required ^
                         ", Actual: " ^ string_of_int actual));
 
-      (* 인자 평가 (call-by-value strict) *)
+      (* 인자 평가 : call-by-value strict *)
       let arg_vals = List.map (fun a -> interp_expr a g s) args in
 
-      (* σ' 생성: fresh store *)
+      (* σ' 생성: fresh store에 파라미터 바인딩 *)
       let rec bind store ps vs =
         match ps, vs with
         | [], [] -> store
@@ -55,7 +54,7 @@ let rec interp_expr (e: Ast.expr) (g: FStore.t) (s: Store.t) : Value.t =
       in
       let s' = bind Store.empty params arg_vals in
 
-      (* 함수 본문 평가 *)
+
       interp_expr body g s'
 
 let interp_fundef (d: Ast.fundef) (g: FStore.t) : FStore.t = 
